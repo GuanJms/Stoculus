@@ -1,0 +1,29 @@
+{
+    "DATABASE_ROOT": {
+        "MacBook Pro": "/Users/jamesguan/Project/TemptDataHouse",
+        "MacBook Air": "/Users/jamesguan/Projects/TemptDataHouse"
+    },
+    "DOMAIN_PATH": {
+        "EQUITY": {
+            "BASE": "",
+            "STOCK": {
+                "BASE": "Equity",
+                "TRADED": {
+                    "BASE": "raw_traded_quote"
+                },
+                "QUOTE" :{
+                    "BASE": "raw_quote"
+                }
+            },
+            "OPTION": {
+                "BASE": "Option",
+                "TRADED": {
+                    "BASE": "raw_traded_quote"
+                },
+                "QUOTE" :{
+                    "BASE": "raw_quote"
+                }
+            }
+        }
+    }
+}
