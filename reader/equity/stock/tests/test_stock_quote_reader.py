@@ -17,15 +17,15 @@ class TestStockQuoteReader(unittest.TestCase):
     def test_reading(self):
         reader = self.reader
         peek = reader.peek_time()
-        data, status = reader._read_util_time(peek+8000)
-        print(len(data))
+        data, status = reader._read_upto_time(peek + 8000)
+        print(data)
         print(status)
-        print(type(data[0]))
-        print(data[0])
 
-
-
-
+    def test_jsonfy(self):
+        reader = self.reader
+        peek = reader.peek_time()
+        data = reader.read(return_type='json', time=peek + 8000, push_to_cache=False)
+        print(data)
 
 
 if __name__ == '__main__':

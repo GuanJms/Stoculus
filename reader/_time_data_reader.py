@@ -1,55 +1,42 @@
 from collections import deque
-from typing import Optional
-
-from utils.reading_stream import CSVReadingStream, IntradayTimeReader, TimePeekable, BatchReader
+from typing import Optional, List
 from abc import abstractmethod
-from pathlib import Path
+
+import colorama
+
 from _enums import ReadingStatus, ReaderStatus
+from ._stream_reader import StreamReader
+from request.cache.cache_basics import DataCache
+from utils.reading_stream import CSVReadingStream, IntradayTimeReader, TimePeekable, BatchReader
 
 """
 QuoteReader handle reading quote files. 
 """
 
 
-class TimeDataStreamReader(IntradayTimeReader, TimePeekable, BatchReader):
-    READING_BATCH = 1000
+class TimeDataStreamReader(StreamReader, IntradayTimeReader, TimePeekable, BatchReader):
 
     def __init__(self):
-        self._stream: Optional[CSVReadingStream] = None
-        self._path: Optional[Path] = None
-        self._file_type: Optional[str] = None
-        self._data_cache: deque = deque()
+        super().__init__()
         self._date: Optional[int] = None
-        self._reading_batch: Optional[int] = None
         self._intraday_time_column: Optional[str] = None
         self._intraday_time_column_IX: Optional[int] = None
         self._intraday_time: Optional[int] = None
-        self._header: Optional[list] = None
-
-        self._has_header: Optional[bool] = None
-        self._encoding: Optional[str] = None
-        self._delimiter: Optional[str] = None
-
-        self.status = ReaderStatus.CLOSED
         self.set_reading_batch(self.READING_BATCH)
 
-    @property
-    def empty(self) -> bool:
-        self._check_read_batch()
-        return self._stream.empty and len(self._data_cache) == 0
-
-    def _next(self):
-        return self._data_cache.popleft() if not self.empty else None
-
-    def _open_stream(self, has_header: bool = True, encoding: str = 'utf-8', delimiter: str = ','):
-        self._data_cache = deque()
-        self._stream = CSVReadingStream.open(self.get_path(), encoding=encoding, delimiter=delimiter)
-        if has_header:
+    def open_stream(self, **kwargs):
+        self._reader_data_queue = deque()
+        if self._encoding is None:
+            self._encoding = 'utf-8'
+        if self._delimiter is None:
+            self._delimiter = ','
+        self._stream = CSVReadingStream.open(self.get_path(), encoding=self._encoding, delimiter=self._delimiter)
+        if self._has_header is not None and self._has_header:
             self._header = next(self._stream)
             self._intraday_time_column_IX = self._header.index(self._intraday_time_column)
         self.status = ReaderStatus.OPEN
 
-    def _read_util_time(self, time: int):
+    def _read_upto_time(self, time: int):
         record_to_return = []
         read_status: Optional[ReadingStatus] = None
 
@@ -80,8 +67,9 @@ class TimeDataStreamReader(IntradayTimeReader, TimePeekable, BatchReader):
         self._intraday_time = None
 
     def peek_time(self) -> Optional[int]:
-        if self.empty: return None
-        return int(self._data_cache[0][self._intraday_time_column_IX])
+        if self.empty:
+            return None
+        return int(self._reader_data_queue[0][self._intraday_time_column_IX])
 
     def set_date(self, date: int):
         self._date = date
@@ -89,27 +77,32 @@ class TimeDataStreamReader(IntradayTimeReader, TimePeekable, BatchReader):
     def get_date(self) -> int:
         return self._date
 
-    def _read_batch(self):
-        for i in range(self._reading_batch):
-            if self._stream.empty:
-                break
-            else:
-                self._data_cache.append(next(self._stream))
+    @abstractmethod
+    def jsonfy(self, data: List[List], time: int):
+        pass
 
-    def set_reading_batch(self, batch_size: int):
-        self._reading_batch = batch_size
+    @abstractmethod
+    def tag(self, data: List[List], **kwargs):
+        raise NotImplementedError("Tagging is implemented in subclass")
 
-    def _check_read_batch(self):
-        # read more if the data cache is empty
-        if len(self._data_cache) == 0:
-            self._read_batch()
+    def write_data_to_cache(self, data: List[List] | dict):
+        if self._data_cache is None:
+            raise ValueError("Timeline Cache is not set")
+        tagged_data = self.tag(data)
+        self._data_cache.write(tagged_data)
 
-    def get_path(self):
-        return self._path
-
-    def set_path(self, path: Path):
-        self._path = path
-
-    def open_stream(self):
-        self._open_stream(has_header=self._has_header, encoding=self._encoding,
-                          delimiter=self._delimiter)
+    def read(self, return_type: str = 'json', push_to_cache: bool = True, **kwargs):
+        time = kwargs['time']
+        read_until_time_data, reading_status = self._read_upto_time(time)
+        self.set_reading_status(reading_status)
+        match return_type:
+            case 'json':
+                if push_to_cache:
+                    self.write_data_to_cache(read_until_time_data)
+                else:
+                    return self.jsonfy(read_until_time_data, time)
+            case 'list':
+                if push_to_cache:
+                    self.write_data_to_cache(read_until_time_data)
+                else:
+                    return [read_until_time_data]

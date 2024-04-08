@@ -1,1 +1,2 @@
-from ._time_data_reader import TimeDataStreamReader
+from ._stream_reader import StreamReader
+from ._reader_factory import ReaderFactory

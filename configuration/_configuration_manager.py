@@ -18,7 +18,7 @@ class ConfigurationManager:
     _configure_folder_path: str = os.path.join(os.path.dirname(__file__), 'configuration_files')
     _root_system: Optional[str] = None
     _domain_path: dict = {}
-    _domain_config: dict ={}
+    _domain_config: dict = {}
     _initialized: bool = False
     _testing_device: Optional[str] = None
 
@@ -84,8 +84,10 @@ class ConfigurationManager:
         return cls._root_system
 
     @classmethod
+    @update_configure
     def get_path_config(cls):
-        pass
+        return cls._domain_path
+
 
     @classmethod
     @update_configure
@@ -100,9 +102,11 @@ class ConfigurationManager:
 
     @classmethod
     @update_configure
-    def get_domain_config(cls, domains: List[DomainEnum]):
+    def get_domain_config(cls, domains: Optional[List[DomainEnum]]=None):
         domain_config_to_return = {}
         traverser = cls._domain_config
+        if domains is None:
+            return cls._domain_config
         domain_chain = domains #TODO: Implement a function to sort domains in the list
         for domain in domain_chain:
             traverser = traverser[domain.to_string()]

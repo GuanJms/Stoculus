@@ -4,6 +4,7 @@ from enum import Enum, auto
 class ReadingStatus(Enum):
     DONE = auto()
     ONGOING = auto()
+    INACTIVATE = auto()
 
 
 class ReaderStatus(Enum):
