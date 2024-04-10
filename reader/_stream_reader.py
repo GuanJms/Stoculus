@@ -73,6 +73,13 @@ class StreamReader(ABC):
     def set_reading_status(self, reading_status: ReadingStatus):
         self._reading_status = reading_status
 
+    def get_param(self, param: str):
+        if hasattr(self, param):
+            return getattr(self, param)
+        if hasattr(self, f'_{param}'):
+            return getattr(self, f'_{param}')
+        return None
+
 
     @abstractmethod
     def read(self, return_type: str = 'json', push_to_cash:bool = True, **kwargs):

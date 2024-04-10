@@ -1,7 +1,8 @@
 {
     "DATABASE_ROOT": {
         "MacBook Pro": "/Users/jamesguan/Project/TemptDataHouse",
-        "MacBook Air": "/Users/jamesguan/Projects/TemptDataHouse"
+        "MacBook Air": "/Users/jamesguan/Projects/TemptDataHouse",
+        "Windows": "E:\\"
     },
     "DOMAIN_PATH": {
         "EQUITY": {

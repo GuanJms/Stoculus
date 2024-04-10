@@ -31,7 +31,7 @@ class ConfigurationManager:
                 cls._testing_device = get_macbook_enviroment()
             case "Windows":
                 # Add your code for Windows here
-                raise NotImplementedError("Windows is not supported")
+                cls._testing_device = "Windows"
             case _:
                 raise EnvironmentError(f"Unsupported OS: {os_name}")
 

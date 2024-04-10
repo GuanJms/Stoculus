@@ -35,9 +35,12 @@ class StockQuoteReader(TimeDataStreamReader):
             self._has_header = True if domain_config['HAS_HEADER'] == 'True' else False
 
         # Setting Path
+
         new_path = PathManager.get_path(domains=self._domains, root=self._root,
-                                        date=self._date, file_type=self._file_type)
+                                            date=self._date, file_type=self._file_type)
         self.set_path(new_path)
+
+
 
     def jsonfy(self, data: List[List], time: int):
         return {

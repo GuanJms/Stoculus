@@ -12,7 +12,7 @@ class RequestHandler:
         return encrypted_token, key, original_token
 
     @staticmethod
-    def handle_read_upto_time_request(token: str, time: int):
+    def handle_read_upto_time_request(token: str, time: int | float):
         # Readers read more data into cache
         readers = CacheManager.get_readers(token)
         for reader in readers:
@@ -30,9 +30,15 @@ class RequestHandler:
     @staticmethod
     def create_reader(domain_chain_str, token, **kwargs):
         reader = ReaderFactory.create_reader(domain_chain_str=domain_chain_str, **kwargs)
-        reader.configure_file()
-        reader.open_stream()
-        CacheManager.register_reader(token, reader)
+        try:
+            reader.configure_file()
+            reader.open_stream()
+            CacheManager.register_reader(token, reader)
+        except FileNotFoundError as e:
+            raise ValueError(str(e))
+
+
+
 
     @staticmethod
     def get_cache_status(token):
@@ -40,6 +46,27 @@ class RequestHandler:
         if cache is None:
             return 'INVALID TOKEN'
         return CacheManager.get_cache(token).status.name
+
+    @staticmethod
+    def find_token(hub_id: str):
+        token = CacheManager.find_token(hub_id)
+        return token
+
+    @classmethod
+    def delete_token(cls, token: str):
+        CacheManager.delete_token(token)
+
+    @classmethod
+    def register_token(cls, hub_id: str, token: str):
+        CacheManager.register_token(hub_id, token)
+
+    @classmethod
+    def get_tickers(cls, token):
+        return CacheManager.get_tickers(token)
+
+    @classmethod
+    def get_server_status(cls):
+        return CacheManager.get_cache_manager_status()
 
 
 

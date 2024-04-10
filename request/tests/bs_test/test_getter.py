@@ -1,11 +1,11 @@
-import urllib.request
+from urllib import request, parse
 import json
 import colorama
 
 from unittest import TestCase
 import requests
 
-BASE = 'http://127.0.0.1:8000'
+BASE = r'http://127.0.0.1:1999'
 
 
 def read_next_line(time, public_token, private_key):
@@ -17,7 +17,7 @@ def read_next_line(time, public_token, private_key):
         print("Error:", response.status_code)
 
 
-def start_connection(ticker='TSLA', date=20240301):
+def start_connection(ticker='TSLA', date='20240301'):
     url = f'{BASE}/timeline/start/'
     ticker_info = {
         ticker: {
@@ -26,8 +26,12 @@ def start_connection(ticker='TSLA', date=20240301):
         }
     }
     data = json.dumps(ticker_info).encode('utf-8')
-    req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
-    with urllib.request.urlopen(req) as response:
+    params = {'hub_id': '1234567899'}
+    if params:
+        query_string = parse.urlencode(params)
+        url = f"{url}?{query_string}"
+    req = request.Request(url, data=data, headers={'Content-Type': 'application/json'}, method='POST')
+    with request.urlopen(req) as response:
         response_data = response.read()
         data = json.loads(response_data)
         return data

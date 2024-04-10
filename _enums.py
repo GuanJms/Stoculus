@@ -13,6 +13,7 @@ class ReaderStatus(Enum):
     ERROR = auto()
 
 
+
 class DomainEnum(Enum):
     def to_string(self):
         return self.name.upper()
