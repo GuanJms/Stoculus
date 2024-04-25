@@ -1,1 +1,2 @@
 from ._request_handler import RequestHandler
+from .fundamental_data_request_handler import FundamentalDataRequestHandler

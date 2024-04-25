@@ -23,6 +23,9 @@
                 },
                 "QUOTE" :{
                     "BASE": "raw_quote"
+                },
+                "EOD": {
+                    "BASE": "raw_eod_greeks"
                 }
             }
         }

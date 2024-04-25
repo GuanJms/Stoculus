@@ -4,14 +4,15 @@ from typing import List, Optional
 
 from _enums import AssetDomain, EquityDomain, PriceDomain, DomainEnum
 from utils.path._generate_paths import get_stock_quote_path, get_stock_traded_path, get_option_quote_path, \
-    get_option_traded_quote_path
+    get_option_traded_quote_path, get_option_eod_path
 from utils import DomainMatcher
 
 path_action_map = {
     'get_stock_traded': get_stock_traded_path,
     'get_stock_quote': get_stock_quote_path,
     'get_option_traded': get_option_traded_quote_path,
-    'get_option_quote': get_option_quote_path
+    'get_option_quote': get_option_quote_path,
+    'get_option_eod': get_option_eod_path,
 }
 
 

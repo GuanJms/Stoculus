@@ -32,3 +32,4 @@ class PriceDomain(DomainEnum):
     TRADED = auto()
     QUOTE = auto()
     TRADED_QUOTE = auto()
+    EOD = auto()

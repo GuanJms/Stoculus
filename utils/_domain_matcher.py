@@ -10,7 +10,8 @@ DOMAIN_MAP = {
         },
         EquityDomain.OPTION: {
             PriceDomain.TRADED: 'get_option_traded',
-            PriceDomain.QUOTE: 'get_option_quote'
+            PriceDomain.QUOTE: 'get_option_quote',
+            PriceDomain.EOD: 'get_option_eod'
         }
     }
 }

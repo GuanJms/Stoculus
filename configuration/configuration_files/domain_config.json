@@ -19,7 +19,10 @@
                     "BASE": "raw_traded_quote"
                 },
                 "QUOTE" :{
-                    "BASE": "raw_quote"
+                    "FILE_TYPE": "csv",
+                    "TIME_COLUMN": "date",
+                    "HAS_HEADER": "True",
+                    "FOLDER_NAME": "raw_eod_greeks"
                 }
             }
         }
