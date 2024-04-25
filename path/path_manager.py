@@ -1,10 +1,6 @@
-from enum import Enum
-from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
-from _enums import AssetDomain, EquityDomain, PriceDomain, DomainEnum
-from utils.path._generate_paths import get_stock_quote_path, get_stock_traded_path, get_option_quote_path, \
-    get_option_traded_quote_path, get_option_eod_path
+from path._generate_paths import *
 from utils import DomainMatcher
 
 path_action_map = {
@@ -20,12 +16,20 @@ class PathManager:
 
     @staticmethod
     def get_path(domains: List[DomainEnum], **kwargs) -> Optional[Path]:
+        domain_map = kwargs.get('domain_map', None)
         if len(domains) == 0:
             raise ValueError('domains cannot be empty')
 
-        domain_action_str = DomainMatcher.match_domain(domains)
+        domain_action_str = DomainMatcher.match_domain(domains, domain_map=domain_map)
         domain_action = path_action_map[domain_action_str]
-        return domain_action(domains = domains, **kwargs)
+        return domain_action(domains=domains, **kwargs)
+
+    @staticmethod
+    def get_director_path(domains: List[DomainEnum], **kwargs) -> Optional[Path]:
+        if len(domains) == 0:
+            raise ValueError('domains cannot be empty')
+        path = get_directory_path(domains, **kwargs)
+        return path
 
     #
     #

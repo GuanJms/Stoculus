@@ -1,1 +1,1 @@
-from ._path_manager import PathManager
+from .path_manager import PathManager

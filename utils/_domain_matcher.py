@@ -24,9 +24,9 @@ class DomainMatcher:
         return iter(domains)
 
     @staticmethod
-    def match_domain(domains: List[DomainEnum | AssetDomain], domain_map: dict = None,  **kwargs):
+    def match_domain(domains: List[DomainEnum | AssetDomain], domain_map: dict = None, **kwargs):
         if domain_map is None:
-            domain_map = DOMAIN_MAP
+            domain_map = DOMAIN_MAP  # default domain map
         if isinstance(domain_map, str):
             return domain_map
         domains = domains.copy()

@@ -12,4 +12,6 @@ class ThetaValidator:
     @staticmethod
     def check_valid_exp_date(root: str, exp: int):
         from middleware.requester import ThetaMetaRequester
+        from middleware.validator import LocalValidator
+
         requester = ThetaMetaRequester()
