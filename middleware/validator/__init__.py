@@ -1,2 +1,3 @@
 from .theta_validator import ThetaValidator
-from .local_validator import LocalValidator
+from ._local_validator import LocalValidator
+from .option_local_validator import OptionLocalValidator
