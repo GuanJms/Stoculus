@@ -10,7 +10,7 @@ ratio_router = APIRouter(
 )
 
 
-@ratio_router.get("/company/{ticker}/")
+@ratio_router.get("/company/{ticker}")
 async def get_server_status(ticker: str):
     data = FundamentalDataRequestHandler.get_financial_ratio(ticker)
     # convert data in to

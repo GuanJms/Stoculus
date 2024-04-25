@@ -17,7 +17,7 @@ class TickerDomainInfo(BaseModel):
     DOMAINS: str
     DATE: Optional[str | int] = None
 
-@timeline_router.get("/time/next/")
+@timeline_router.get("/time/next")
 async def get_read_upto_time(public_token: str | None = None,
                              private_key: str | None = None,
                              time: int | float | None = None):
@@ -30,7 +30,7 @@ async def get_read_upto_time(public_token: str | None = None,
     return data
 
 
-@timeline_router.post("/start/")
+@timeline_router.post("/start")
 async def start_cache(tickers: Dict[str, TickerDomainInfo], hub_id: Optional[str] = None):
     public_token, key, token = RequestHandler.create_timeline_cache()
 
@@ -59,7 +59,7 @@ async def start_cache(tickers: Dict[str, TickerDomainInfo], hub_id: Optional[str
     }
 
 
-@timeline_router.get("/status/")
+@timeline_router.get("/status")
 async def get_timeline_status(public_token: str | None = None, private_key: str | None = None):
     if not TokenManager.is_valid_token(public_token, private_key):
         raise HTTPException(status_code=400, detail="Invalid token")
@@ -68,7 +68,7 @@ async def get_timeline_status(public_token: str | None = None, private_key: str 
         'status': RequestHandler.get_cache_status(token)
     }
 
-@timeline_router.get("/status/tickers/")
+@timeline_router.get("/status/tickers")
 async def get_timeline_status(public_token: str | None = None, private_key: str | None = None):
     if not TokenManager.is_valid_token(public_token, private_key):
         raise HTTPException(status_code=400, detail="Invalid token")

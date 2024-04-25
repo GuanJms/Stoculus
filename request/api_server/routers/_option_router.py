@@ -12,7 +12,7 @@ option_router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@option_router.get("/quote/eod/")
+@option_router.get("/quote/eod")
 async def get_option_chain_historical_quote(ticker: str, exp: int, year: int, month:int):
     data = OptionDataRequestHandler.get_option_chain_historical_quote(ticker=ticker, exp=exp,
                                                                       year=year, month=month)
@@ -25,7 +25,7 @@ async def get_option_chain_historical_quote(ticker: str, exp: int, year: int, mo
     }
 
 
-@option_router.get("/exp/")
+@option_router.get("/exp")
 async def get_option_expiration_dates(ticker: str):
     data = OptionDataRequestHandler.get_option_expiration_dates(ticker=ticker)
     if data is None:
@@ -34,3 +34,8 @@ async def get_option_expiration_dates(ticker: str):
         'ticker': ticker,
         'exps': data
     }
+
+@option_router.get("/exp/strikes")
+async def get_option_expiration_strikes(ticker: str, exp: int):
+    data = OptionDataRequestHandler.get_option_expiration_strikes(ticker=ticker, exp=exp)
+

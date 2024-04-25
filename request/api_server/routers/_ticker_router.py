@@ -13,7 +13,7 @@ ticker_router = APIRouter(
 )
 
 
-@ticker_router.get("/check/")
+@ticker_router.get("/check")
 async def check_ticker_existence(ticker: str, exp: int, year: int, month: int):
     data = OptionDataRequestHandler.get_option_chain_historical_quote(ticker=ticker, exp=exp,
                                                                       year=year, month=month)

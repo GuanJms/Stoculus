@@ -30,7 +30,7 @@ class OptionDataRequestHandler:
         if ticker in cls.expiration_dates:
             return cls.expiration_dates[ticker]
         else:
-            raise ValueError(f"Ticker {ticker} not found in expiration dates")
+            return None
 
     @classmethod
     def check_ticker_existence_local(cls, ticker: str):
@@ -40,10 +40,8 @@ class OptionDataRequestHandler:
         else:
             return False
 
-
-    # @classmethod
-    # def check_ticker_existence_theta_data_api(cls, ticker: str):
-    #     # Check if the theta data api has the ticker
-
+    @classmethod
+    def get_option_expiration_strikes(cls, ticker, exp):
+        pass
 
 # OptionDataRequestHandler.get_option_chain_historical_quote('SPY', 20240417)
