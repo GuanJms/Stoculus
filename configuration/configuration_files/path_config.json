@@ -1,8 +1,18 @@
 {
     "DATABASE_ROOT": {
-        "MacBook Pro": "/Users/jamesguan/Project/TemptDataHouse",
-        "MacBook Air": "/Users/jamesguan/Projects/TemptDataHouse",
+        "MacBook Pro": "/Volumes/StoculusM",
+        "MacBook Air": "/Volumes/StoculusM",
         "Windows": "E:\\"
+    },
+    "META_PATH":{
+        "BASE": "meta_log",
+        "OPTION": {
+            "BASE": "option",
+            "TICKER": {
+                "BASE": "tickers.json"
+            }
+        }
+
     },
     "DOMAIN_PATH": {
         "EQUITY": {

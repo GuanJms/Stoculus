@@ -1,7 +1,11 @@
 import os
 import json
+from pathlib import Path
+
 from _enums import DomainEnum
 from typing import Optional, TextIO, Iterator, List
+
+from data_meta.meta_enums import MetaEnum
 from utils.device_enviroment import get_macbook_enviroment
 
 
@@ -19,6 +23,7 @@ class ConfigurationManager:
     _root_system: Optional[str] = None
     _domain_path: dict = {}
     _domain_config: dict = {}
+    _meta_config: dict = {}
     _initialized: bool = False
     _testing_device: Optional[str] = None
 
@@ -35,11 +40,13 @@ class ConfigurationManager:
             case _:
                 raise EnvironmentError(f"Unsupported OS: {os_name}")
 
+
     @classmethod
     def _run_path_config(cls, config_file):
         config_data = json.load(config_file)
-        cls._root_system = config_data.get(f'DATABASE_ROOT', None).get(cls._testing_device, None)
+        cls._root_system = config_data.get('DATABASE_ROOT', None).get(cls._testing_device, None)
         cls._domain_path = config_data.get('DOMAIN_PATH', None)
+        cls._meta_config = config_data.get('META_PATH', None)
 
     @classmethod
     def load_configurations(cls):
@@ -114,4 +121,31 @@ class ConfigurationManager:
         domain_config_to_return['TIME_COLUMN'] = traverser.get("TIME_COLUMN", None)
         domain_config_to_return['HAS_HEADER'] = traverser.get("HAS_HEADER", None)
         return domain_config_to_return
+
+    @classmethod
+    @update_configure
+    def get_meta_config(cls, metas: Optional[List[MetaEnum]]=None):
+        meta_config_to_return = {}
+        traverser = cls._meta_config
+        if metas is None:
+            return cls._meta_config
+        meta_chain = metas
+        for meta in meta_chain:
+            traverser = traverser[meta.to_string()]
+            meta_config_to_return[meta.to_string()] = traverser.get("BASE")
+        return meta_config_to_return
+
+    @classmethod
+    @update_configure
+    def get_meta_path(cls):
+        return cls._meta_config['BASE']
+
+
+
+
+
+
+
+
+
 

@@ -1,5 +1,6 @@
 from typing import Optional
 
+from data_meta.meta_enums import MetaEnum
 from path._generate_paths import *
 from utils import DomainMatcher
 
@@ -31,47 +32,9 @@ class PathManager:
         path = get_directory_path(domains, **kwargs)
         return path
 
-    #
-    #
-    #     try:
-    #         match domain := domain_iterator.__next__():
-    #             case AssetDomain.EQUITY:
-    #                 return PathManager._match_equity_domain(domain_iterator, domains=domains, **kwargs)
-    #             case _:
-    #                 raise ValueError(f'Invalid Asset Domain {domain}')
-    #     except Exception as e:
-    #         if isinstance(e, StopIteration):
-    #             print('Domain is not complete')
-    #         else:
-    #             print(e)
-    #         return None
-    #
-    # @staticmethod
-    # def _match_equity_domain(domain_iterator, **kwargs) -> Path:
-    #     match domain := domain_iterator.__next__():
-    #         case EquityDomain.STOCK:
-    #             return PathManager._match_stock_domain(domain_iterator, **kwargs)
-    #         case EquityDomain.OPTION:
-    #             return PathManager._match_option_domain(domain_iterator, **kwargs)
-    #         case _:
-    #             raise ValueError(f'Invalid Equity Domain{domain}')
-    #
-    # @staticmethod
-    # def _match_stock_domain(domain_iterator, **kwargs) -> Path:
-    #     match domain := domain_iterator.__next__():
-    #         case PriceDomain.TRADED:
-    #             return get_stock_traded_path(**kwargs)
-    #         case PriceDomain.QUOTE:
-    #             return get_stock_quote_path(**kwargs)
-    #         case _:
-    #             raise ValueError(f'Invalid Price Domain{domain}')
-    #
-    # @staticmethod
-    # def _match_option_domain(domain_iterator, **kwargs) -> Path:
-    #     match domain := domain_iterator.__next__():
-    #         case PriceDomain.TRADED:
-    #             return get_option_traded_quote_path(**kwargs)
-    #         case PriceDomain.QUOTE:
-    #             return get_option_quote_path(**kwargs)
-    #         case _:
-    #             raise ValueError(f'Invalid Price Domain{domain}')
+    @staticmethod
+    def get_meta_path(metas: List[MetaEnum], **kwargs) -> Optional[Path]:
+        if len(metas) == 0:
+            raise ValueError('metas cannot be empty')
+        path = get_meta_path(metas, **kwargs)
+        return path

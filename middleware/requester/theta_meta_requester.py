@@ -24,3 +24,7 @@ class ThetaMetaRequester(ThetaRequester):
     def get_option_strikes(self, root: str, exp: int):
         _url = self.url + f'/list/strikes'
         return self.get_request(_url, params={'root': root, 'exp': exp})
+
+    def get_option_exp_dates(self, root: str, exp: int):
+        _url = self.url + f'/list/dates/option/quote'
+        return self.get_request(_url, params={'root': root, 'exp': exp})
