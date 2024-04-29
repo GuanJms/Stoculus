@@ -1,3 +1,5 @@
+from typing import List
+
 from middleware.requester import ThetaMetaRequester
 from path import PathManager
 from ._meta_manager import MetaManager
@@ -17,14 +19,20 @@ class OptionMetaManager(MetaManager):
         super().__init__()
         self.floor_date = kwargs.get('floor_date', None)
         self.ticker_manager = TickerMetaManager()
-        self.all_tickers = self.ticker_manager.get_meta()
+        self.all_tickers = None
         self.requester = ThetaMetaRequester()
         self._verbose = kwargs.get('verbose', False)
+        self.ticker_meta_path = None
 
     def load_meta(self, **kwargs):
+        tickers = kwargs.get('tickers', None)
+        if tickers is None:
+            self.all_tickers = self.ticker_manager.get_meta()
+        else:
+            self.all_tickers = tickers
         self.meta = {}
         self.ticker_meta_path = {}
-        self.all_tickers = self.ticker_manager.get_meta()
+
         option_path = PathManager.get_meta_path([MetaEnum.OPTION])
         for ticker in self.all_tickers:
             ticker_json_file = ticker + '.json'
@@ -35,9 +43,20 @@ class OptionMetaManager(MetaManager):
             except FileNotFoundError:
                 print(f"Meta path not found for {ticker}")
 
+    def get_option_meta(self, ticker: str):
+        # load json file for ticker
+        option_path = PathManager.get_meta_path([MetaEnum.OPTION])
+        ticker_json_file = ticker + '.json'
+        ticker_path = option_path / ticker_json_file
+        try:
+            return self.read_json(ticker_path)
+        except FileNotFoundError:
+            print(f"Meta path not found for {ticker}")
+            return None
+
     def update(self, **kwargs):
         self._verbose = kwargs.get('verbose', False)
-        self.load_meta()
+        self.load_meta(**kwargs)
         # DONE: update all expirations
         for ticker in self.all_tickers:
             # DONE: Update available expirations for one ticker
@@ -52,7 +71,6 @@ class OptionMetaManager(MetaManager):
     def write_json_ticker(self, ticker: str):
         t_path = self.ticker_meta_path[ticker]
         self.overwrite_json(t_path, self.meta[ticker])
-
 
     def _update_all_expirations(self, ticker: str):
         if ticker not in self.meta:
@@ -100,10 +118,19 @@ class OptionMetaManager(MetaManager):
         if self._verbose:
             print(f"Updated {ticker} {exp} dates - {data}")
 
-
     @staticmethod
     def is_empty_data(data, empty_message):
         if data is None:
             print(empty_message)
             return True
         return False
+
+    def update_exp_meta(self, ticker: str, exp: int, strikes: List[int]):
+        if self.meta is None:
+            self.load_meta(tickers=[ticker])
+        if 'exp_meta' not in self.meta[ticker]:
+            self.meta[ticker]['exp_meta'] = {}
+        if exp not in self.meta[ticker]['exp_meta']:
+            self._construct_exp_meta(ticker, exp)
+        self.meta[ticker]['exp_meta'][exp]['strikes'] = strikes
+        self.write_json_ticker(ticker)

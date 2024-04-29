@@ -7,50 +7,43 @@ import json
 
 class OptionLocalValidator(LocalValidator):
 
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(OptionLocalValidator, cls).__new__(cls)
-        return cls.instance
-
     def __init__(self):
         super().__init__()
         self._domain = [AssetDomain.EQUITY, EquityDomain.OPTION]
+        self._cache = {}
 
-    def check_valid_ticker(self, ticker: str):
-        try:
-            self._check_existence(sub_path=[ticker])
-        except (FileNotFoundError, ValueError):
-            return False
-        return True
+    @staticmethod
+    def check_valid_ticker(ticker: str):
+        from data_meta.ticker_meta_manager import TickerMetaManager
+        manager = TickerMetaManager()
+        return manager.has_ticker(ticker)
 
-    def load_meta_file(self, ticker: str) -> dict:
-        if not self._check_existence(sub_path=[ticker, 'meta.json']):
-            raise FileNotFoundError(f"meta file not found for {ticker}")
-        path = self.get_director_path() / ticker / 'meta.json'
-        with open(path, 'r') as file:
-            meta_data = json.load(file)
-        return meta_data
+    def get_option_meta(self, ticker: str) -> dict:
+        from data_meta.option_meta_manager import OptionMetaManager
+        manager = OptionMetaManager()
+        if ticker not in self._cache:
+            self._cache[ticker] = manager.get_option_meta(ticker)
+        return self._cache[ticker]
 
-    def _get_exps(self, ticker: str) -> List[int]:
-        meta_data = self.load_meta_file(ticker)
-        try:
-            exps = meta_data.get('EXPIRATIONS')
-            return exps
-        except Exception as e:
-            raise ValueError(f"meta file does not contain expirations: {e}")
+    def get_exps(self, ticker: str) -> List[int] | None:
+        meta_data = self.get_option_meta(ticker)
+        if meta_data is None: return None
+        return meta_data.get('all_expirations', None)
 
-    def _get_exps_strikes(self, ticker: str) -> Dict[int, List[int]]:
-        meta_data = self.load_meta_file(ticker)
-        try:
-            exps_strikes = meta_data.get('STRIKES')
-            return exps_strikes
-        except Exception as e:
-            raise ValueError(f"meta file does not contain expirations and strikes: {e}")
+    def get_strikes(self, ticker: str, exp: int) -> List[int] | None:
+        if not self._has_option_chain_meta(ticker, exp): return None
+        meta_data = self.get_option_meta(ticker)
+        _option_chain_meta = meta_data.get(exp)
+        return _option_chain_meta.get('strikes', None)
 
-    def _get_strikes(self, ticker: str, exp: int) -> List[int]:
-        exps_strikes = self._get_exps_strikes(ticker)
-        try:
-            strikes = exps_strikes.get(exp)
-            return strikes
-        except Exception as e:
-            raise ValueError(f"meta file does not contain strikes for expiration {exp}: {e}")
+    def get_dates(self, ticker: str, exp: int) -> List[str] | None:
+        if not self._has_option_chain_meta(ticker, exp): return None
+        meta_data = self.get_option_meta(ticker)
+        _option_chain_meta = meta_data.get(exp)
+        return _option_chain_meta.get('dates', None)
+
+    def _has_option_chain_meta(self, ticker: str, exp: int) -> bool:
+        meta_data = self.get_option_meta(ticker)
+        if meta_data is None: return False
+        exp_meta = meta_data.get('exp_meta')
+        return exp in exp_meta

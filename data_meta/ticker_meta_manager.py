@@ -28,14 +28,15 @@ class TickerMetaManager(MetaManager):
     def get_meta(self):
         return self.meta
 
+    def has_ticker(self, ticker: str):
+        return ticker in self.meta
+
     def update(self, **kwargs):
         self.load_meta(**kwargs)
         try:
             self._update_option_ticker_meta()
         except Exception as e:
             print(f"Error updating option ticker meta - {e}")
-
-
 
     def _update_option_ticker_meta(self):
         path = PathManager.get_director_path([AssetDomain.EQUITY, EquityDomain.OPTION])

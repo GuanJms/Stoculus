@@ -76,7 +76,6 @@ def get_meta_path(metas: List[DomainEnum], **kwargs) -> Path:
     META_PATH = ConfigurationManager.get_meta_config(metas)
     path = META_ROOT
     for meta in metas:
-        print(META_PATH[meta.name])
         path = path / META_PATH[meta.name]
     create_meta_json_file_if_not_exists(path)
     return path
