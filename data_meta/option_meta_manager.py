@@ -134,3 +134,8 @@ class OptionMetaManager(MetaManager):
             self._construct_exp_meta(ticker, exp)
         self.meta[ticker]['exp_meta'][exp]['strikes'] = strikes
         self.write_json_ticker(ticker)
+
+    def get_all_tickers(self) -> List[str]:
+        if self.all_tickers is None:
+            self.all_tickers = self.ticker_manager.get_meta()
+        return self.all_tickers

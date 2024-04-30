@@ -13,14 +13,23 @@ ticker_router = APIRouter(
 )
 
 
-@ticker_router.get("/check")
-async def check_ticker_existence(ticker: str, exp: int, year: int, month: int):
-    data = OptionDataRequestHandler.get_option_chain_historical_quote(ticker=ticker, exp=exp,
-                                                                      year=year, month=month)
+# @ticker_router.get("/check")
+# async def check_ticker_existence(ticker: str, exp: int, year: int, month: int):
+#     data = OptionDataRequestHandler.get_option_chain_historical_quote(ticker=ticker, exp=exp,
+#                                                                       year=year, month=month)
+#     if data is None:
+#         raise HTTPException(status_code=472, detail="No data available for the given ticker and expiration.")
+#     return {
+#         'ticker': ticker,
+#         'exp': exp,
+#         'result': data
+#     }
+
+@ticker_router.get("/option")
+async def get_option_tickers():
+    data = OptionDataRequestHandler.get_available_option_tickers()
     if data is None:
-        raise HTTPException(status_code=472, detail="No data available for the given ticker and expiration.")
+        raise HTTPException(status_code=472, detail="Something went wrong. Please contact the administrator.")
     return {
-        'ticker': ticker,
-        'exp': exp,
-        'result': data
+        'tickers': data
     }

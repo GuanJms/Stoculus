@@ -44,4 +44,13 @@ class OptionDataRequestHandler:
     def get_option_expiration_strikes(cls, ticker, exp):
         pass
 
+    @classmethod
+    def get_available_option_tickers(cls):
+        """ This function returns the list of available option tickers in Stoculus """
+        from data_meta import OptionMetaManager
+        manager = OptionMetaManager()
+        tickers = manager.get_all_tickers()
+        return tickers
+
+
 # OptionDataRequestHandler.get_option_chain_historical_quote('SPY', 20240417)
