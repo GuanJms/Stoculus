@@ -70,4 +70,3 @@ class CacheManager:
             'data_caches_number': len(cls._data_caches),
             'readers_number': len(cls._readers)
         }
-

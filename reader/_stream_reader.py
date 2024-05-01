@@ -30,6 +30,9 @@ class StreamReader(ABC):
         self._reading_status: Optional[ReadingStatus] = None
         self._domains: List[DomainEnum] = []
 
+    def __str__(self):
+        return f"{self.__class__.__name__} @{self._path if self._path else ''} with status {self.status}"
+
     @property
     def empty(self) -> bool:
         self._check_read_batch()

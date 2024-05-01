@@ -11,6 +11,9 @@ class DataCache:
         self._status: Optional[ReadingStatus] = ReadingStatus.INACTIVATE
         self._cache: deque = deque()
 
+    def __str__(self):
+        return f"DataCache {self._token} with status {self._status}"
+
     @property
     def token(self) -> str:
         return self._token
