@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import List
 
 from _enums import DomainEnum
-from configuration import ConfigurationManager
 from utils._time_operations import get_month_string
 
 
@@ -16,6 +15,7 @@ def check_path_exists_error(path: Path, error_message: str | None = None):
 
 
 def get_stock_quote_path(**kwargs):
+    from configuration import ConfigurationManager
     if 'root' not in kwargs:
         raise ValueError('Root is required')
     if 'date' not in kwargs:
@@ -40,6 +40,7 @@ def get_stock_quote_path(**kwargs):
 
 
 def get_option_eod_path(**kwargs) -> Path:
+    from configuration import ConfigurationManager
     domains = kwargs.get('domains')
     root = kwargs.get('root')
     exp = kwargs.get('exp')
@@ -62,6 +63,7 @@ def get_option_eod_path(**kwargs) -> Path:
 
 
 def get_directory_path(domains: List[DomainEnum], **kwargs) -> Path:
+    from configuration import ConfigurationManager
     DATABASE_ROOT = Path(ConfigurationManager.get_root_system())
     DOMAIN_PATH = ConfigurationManager.get_domain_path(domains)
     path = DATABASE_ROOT
@@ -72,6 +74,7 @@ def get_directory_path(domains: List[DomainEnum], **kwargs) -> Path:
 
 
 def get_meta_path(metas: List[DomainEnum], **kwargs) -> Path:
+    from configuration import ConfigurationManager
     META_ROOT = Path(ConfigurationManager.get_root_system()) / ConfigurationManager.get_meta_path()
     META_PATH = ConfigurationManager.get_meta_config(metas)
     path = META_ROOT

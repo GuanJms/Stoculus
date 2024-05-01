@@ -38,4 +38,21 @@ async def get_option_expiration_dates(ticker: str):
 @option_router.get("/exp/strikes")
 async def get_option_expiration_strikes(ticker: str, exp: int):
     data = OptionDataRequestHandler.get_option_expiration_strikes(ticker=ticker, exp=exp)
+    if data is None:
+        raise HTTPException(status_code=472, detail="No data available for the given ticker and expiration.")
+    return {
+        'ticker': ticker,
+        'exp': exp,
+        'strikes': data
+    }
+
+
+@option_router.get("/tickers")
+async def get_option_tickers():
+    data = OptionDataRequestHandler.get_available_option_tickers()
+    if data is None:
+        raise HTTPException(status_code=472, detail="Something went wrong. Please contact the administrator.")
+    return {
+        'tickers': data
+    }
 

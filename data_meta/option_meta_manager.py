@@ -17,24 +17,25 @@ class OptionMetaManager(MetaManager):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.meta = {}
+        self.tickers = set()
         self.floor_date = kwargs.get('floor_date', None)
         self.ticker_manager = TickerMetaManager()
-        self.all_tickers = None
         self.requester = ThetaMetaRequester()
         self._verbose = kwargs.get('verbose', False)
-        self.ticker_meta_path = None
+        self.ticker_meta_path = {}
+        self._cache = {}  # TODO: Add fixed memory cache which will drop the oldest data when it reaches the limit
 
     def load_meta(self, **kwargs):
-        tickers = kwargs.get('tickers', None)
-        if tickers is None:
-            self.all_tickers = self.ticker_manager.get_meta()
+        tickers = kwargs.get('tickers', [])
+        if not tickers:
+            self.tickers |= set(self.ticker_manager.get_meta())
+            loaded_tickers = self.tickers
         else:
-            self.all_tickers = tickers
-        self.meta = {}
-        self.ticker_meta_path = {}
+            loaded_tickers = set(tickers)  # type: set
 
         option_path = PathManager.get_meta_path([MetaEnum.OPTION])
-        for ticker in self.all_tickers:
+        for ticker in loaded_tickers:
             ticker_json_file = ticker + '.json'
             ticker_path = option_path / ticker_json_file
             self.ticker_meta_path[ticker] = ticker_path
@@ -45,14 +46,18 @@ class OptionMetaManager(MetaManager):
 
     def get_option_meta(self, ticker: str):
         # load json file for ticker
-        option_path = PathManager.get_meta_path([MetaEnum.OPTION])
-        ticker_json_file = ticker + '.json'
-        ticker_path = option_path / ticker_json_file
-        try:
-            return self.read_json(ticker_path)
-        except FileNotFoundError:
-            print(f"Meta path not found for {ticker}")
+        if ticker not in self.meta:
+            self.load_meta(tickers=[ticker])
+        if ticker not in self.meta:
             return None
+        return self.meta[ticker]
+
+    def get_option_expirations(self, ticker: str):
+        option_meta_data = self.get_option_meta(ticker)
+        if option_meta_data is None:
+            return None
+        exps_data = option_meta_data.get('all_expirations', None)
+        return exps_data
 
     def update(self, **kwargs):
         self._verbose = kwargs.get('verbose', False)
@@ -83,9 +88,9 @@ class OptionMetaManager(MetaManager):
             self.meta[ticker]['exp_meta'] = {}
             # lack of one expiration meta
             # lack of strikes or dates
-            # if 'strikes' not in self.meta[ticker]['exp_meta'][exp]:
+            # if 'strikes' not in self.meta[ticker]['exp_meta'][str(exp)]:
             #     self._update_exp_strike_meta(ticker, exp)
-            # if 'dates' not in self.meta[ticker]['exp_meta'][exp]:
+            # if 'dates' not in self.meta[ticker]['exp_meta'][str(exp)]:
             #     self._update_exp_date_meta(ticker, exp)
 
     def _update_root_expirations(self, ticker: str):
@@ -100,21 +105,21 @@ class OptionMetaManager(MetaManager):
 
     def _construct_exp_meta(self, ticker: str, exp: int):
         """Option expiration meta include available strikes and dates"""
-        self.meta[ticker]['exp_meta'][exp] = {}
+        self.meta[ticker]['exp_meta'][str(exp)] = {}
         # self._update_exp_strike_meta(ticker, exp)
         # self._update_exp_date_meta(ticker, exp)
 
     def _update_exp_strike_meta(self, ticker: str, exp):
         data = self.requester.get_option_strikes(ticker, exp)
         if self.is_empty_data(data, f"Error getting strikes for {ticker} {exp}"): return
-        self.meta[ticker]['exp_meta'][exp]['strikes'] = data
+        self.meta[ticker]['exp_meta'][str(exp)]['strikes'] = data
         if self._verbose:
             print(f"Updated {ticker} {exp} strikes - {data}")
 
     def _update_exp_date_meta(self, ticker: str, exp):
         data = self.requester.get_option_exp_dates(ticker, exp)
         if self.is_empty_data(data, f"Error getting dates for {ticker} {exp}"): return
-        self.meta[ticker]['exp_meta'][exp]['dates'] = data
+        self.meta[ticker]['exp_meta'][str(exp)]['dates'] = data
         if self._verbose:
             print(f"Updated {ticker} {exp} dates - {data}")
 
@@ -132,10 +137,8 @@ class OptionMetaManager(MetaManager):
             self.meta[ticker]['exp_meta'] = {}
         if exp not in self.meta[ticker]['exp_meta']:
             self._construct_exp_meta(ticker, exp)
-        self.meta[ticker]['exp_meta'][exp]['strikes'] = strikes
+        self.meta[ticker]['exp_meta'][str(exp)]['strikes'] = strikes
         self.write_json_ticker(ticker)
 
     def get_all_tickers(self) -> List[str]:
-        if self.all_tickers is None:
-            self.all_tickers = self.ticker_manager.get_meta()
-        return self.all_tickers
+        return self.ticker_manager.get_meta()

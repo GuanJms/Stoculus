@@ -32,18 +32,25 @@ class OptionLocalValidator(LocalValidator):
 
     def get_strikes(self, ticker: str, exp: int) -> List[int] | None:
         if not self._has_option_chain_meta(ticker, exp): return None
-        meta_data = self.get_option_meta(ticker)
-        _option_chain_meta = meta_data.get(exp)
+        _option_chain_meta = self.get_option_chain_meta(ticker, exp)
         return _option_chain_meta.get('strikes', None)
 
     def get_dates(self, ticker: str, exp: int) -> List[str] | None:
         if not self._has_option_chain_meta(ticker, exp): return None
         meta_data = self.get_option_meta(ticker)
-        _option_chain_meta = meta_data.get(exp)
+        _option_chain_meta = meta_data.get(str(exp))
         return _option_chain_meta.get('dates', None)
+
+    def get_option_chain_meta(self, ticker: str, exp: int):
+        meta_data = self.get_option_meta(ticker)
+        if meta_data is None: return None
+        exp_meta = meta_data.get('exp_meta')
+        if exp_meta is None: return None
+        return exp_meta.get(str(exp))
+
 
     def _has_option_chain_meta(self, ticker: str, exp: int) -> bool:
         meta_data = self.get_option_meta(ticker)
         if meta_data is None: return False
         exp_meta = meta_data.get('exp_meta')
-        return exp in exp_meta
+        return str(exp) in exp_meta

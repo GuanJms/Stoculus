@@ -1,12 +1,11 @@
-from configuration import ConfigurationManager
 from abc import ABC, abstractmethod
 import os
 import json
 
-
 class MetaManager(ABC):
 
     def __init__(self):
+        from configuration import ConfigurationManager
         self.root_path = ConfigurationManager.get_root_system()
         self.meta_path = ConfigurationManager.get_meta_config()
         self.meta = None

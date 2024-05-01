@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 from ..._time_data_reader import TimeDataStreamReader
 from _enums import AssetDomain, EquityDomain, PriceDomain, ReadingStatus
-from path import PathManager
+
 from configuration import ConfigurationManager
 from utils._domain_operations import domain_to_chains
 
@@ -25,6 +25,7 @@ class StockQuoteReader(TimeDataStreamReader):
         self._root = root
 
     def configure_file(self):
+        from path import PathManager
         # Setting file reading type
         domain_config = ConfigurationManager.get_domain_config(domains=self._domains)  # type: dict
         self._file_type = domain_config.get("FILE_TYPE", None)
@@ -35,7 +36,6 @@ class StockQuoteReader(TimeDataStreamReader):
             self._has_header = True if domain_config['HAS_HEADER'] == 'True' else False
 
         # Setting Path
-
         new_path = PathManager.get_path(domains=self._domains, root=self._root,
                                             date=self._date, file_type=self._file_type)
         self.set_path(new_path)
